@@ -1,0 +1,23 @@
+{
+  "uuid": "otools-v2ex",
+  "packid": "otools-v2ex",
+  "displayName": "V2EX",
+  "displayNameCN": "V2EX 社区",
+  "developerName": "OTools",
+  "summary": "浏览 V2EX 节点与最新、最热主题，阅读正文和回复。",
+  "version": "0.1.0",
+  "minOtoolsVersion": "0.9.0",
+  "entry": "dist/index.html",
+  "devUrl": "http://127.0.0.1:6570",
+  "quickDev": true,
+  "logo": "logo.svg",
+  "icon": "💬",
+  "hasAd": false,
+  "inPluginPurchase": false,
+  "screenshots": [],
+  "key": ["v2ex", "社区", "论坛", "节点", "主题", "topic", "forum"],
+  "openInBrowser": false,
+  "openMode": "panel",
+  "panelWidth": 1180,
+  "panelHeight": 800
+}

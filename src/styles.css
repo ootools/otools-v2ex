@@ -1,0 +1,256 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--v2-bg);
+  color: var(--v2-text);
+  font-family: var(--otools-font-family, -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 颜色令牌全部由本插件自持：独立仓库不加载宿主样式表，也不引 Element Plus 的
+   css-vars，暗色只需切 html.dark（由 src/theme.ts 维护）。
+   --v2-accent 由 theme.ts 按宿主强调色档位写入，这里是兜底默认值。 */
+:root {
+  --otools-font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  --v2-bg: #ffffff;
+  --v2-sidebar: #fafafa;
+  --v2-border: #e7e9ee;
+  --v2-border-soft: #f0f2f5;
+  --v2-border-strong: #d8dbe2;
+  --v2-text: #1f2329;
+  --v2-text-2: #4b5563;
+  --v2-text-3: #8a919f;
+  --v2-hover: #f4f6f9;
+  --v2-hover-strong: #eceff4;
+  --v2-fill: #f2f3f5;
+  --v2-accent: #2370c6;
+  --v2-active: color-mix(in srgb, var(--v2-accent) 9%, #ffffff);
+  --v2-success: #2f9e5f;
+  --v2-danger: #e34d59;
+  --v2-skeleton: #eceff4;
+  --v2-skeleton-shine: #f7f8fa;
+  color-scheme: light;
+}
+
+html.dark {
+  --v2-bg: #222224;
+  --v2-sidebar: #1c1c1e;
+  --v2-border: rgb(255 255 255 / 0.1);
+  --v2-border-soft: rgb(255 255 255 / 0.05);
+  --v2-border-strong: rgb(255 255 255 / 0.18);
+  --v2-text: rgb(255 255 255 / 0.92);
+  --v2-text-2: rgb(255 255 255 / 0.72);
+  --v2-text-3: rgb(255 255 255 / 0.48);
+  --v2-hover: rgb(255 255 255 / 0.07);
+  --v2-hover-strong: rgb(255 255 255 / 0.12);
+  --v2-fill: rgb(255 255 255 / 0.07);
+  --v2-active: color-mix(in srgb, var(--v2-accent) 24%, transparent);
+  --v2-success: #4ec98a;
+  --v2-danger: #f4777f;
+  --v2-skeleton: rgb(255 255 255 / 0.07);
+  --v2-skeleton-shine: rgb(255 255 255 / 0.11);
+  color-scheme: dark;
+}
+
+html.dark .v2ex-app .node-badge {
+  background: rgb(255 255 255 / 0.09);
+  color: #c9cdd4;
+}
+
+html.dark .mock-badge {
+  background: rgb(240 118 58 / 0.22);
+  color: #ffb489;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--v2-text-2);
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.icon-button:hover {
+  background: var(--v2-hover);
+  color: var(--v2-text);
+}
+
+.icon-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.v2ex-app *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.v2ex-app *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.v2ex-app *::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+  background-color: transparent;
+}
+
+.v2ex-app *:hover::-webkit-scrollbar-thumb {
+  background-color: var(--v2-border-strong);
+}
+
+.v2ex-app *::-webkit-scrollbar-thumb:hover {
+  background-color: var(--v2-text-3);
+}
+
+/* V2EX 正文 / 回复：content_rendered 经白名单清洗后由 v-html 插入，样式必须是全局的。 */
+.v2ex-rich {
+  font-size: 13.5px;
+  line-height: 1.78;
+  color: var(--v2-text);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.v2ex-rich > :first-child {
+  margin-top: 0;
+}
+
+.v2ex-rich > :last-child {
+  margin-bottom: 0;
+}
+
+.v2ex-rich p {
+  margin: 0 0 12px;
+}
+
+.v2ex-rich a {
+  color: var(--v2-accent);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.v2ex-rich a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.v2ex-rich img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 10px 0;
+  border-radius: 8px;
+  cursor: zoom-in;
+}
+
+.v2ex-rich strong,
+.v2ex-rich b {
+  font-weight: 600;
+}
+
+.v2ex-rich blockquote {
+  margin: 12px 0;
+  padding: 8px 12px;
+  border-inline-start: 3px solid var(--v2-border-strong);
+  border-radius: 0 6px 6px 0;
+  background: var(--v2-fill);
+  color: var(--v2-text-2);
+}
+
+.v2ex-rich ul,
+.v2ex-rich ol {
+  margin: 0 0 12px;
+  padding-inline-start: 22px;
+}
+
+.v2ex-rich li {
+  margin: 3px 0;
+}
+
+.v2ex-rich code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--v2-fill);
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.92em;
+}
+
+.v2ex-rich pre {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--v2-fill);
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+.v2ex-rich pre code {
+  padding: 0;
+  background: none;
+}
+
+.v2ex-rich h1,
+.v2ex-rich h2,
+.v2ex-rich h3,
+.v2ex-rich h4,
+.v2ex-rich h5,
+.v2ex-rich h6 {
+  margin: 18px 0 8px;
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.v2ex-rich hr {
+  margin: 18px 0;
+  border: 0;
+  border-top: 1px solid var(--v2-border);
+}
+
+.v2ex-rich table {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.v2ex-rich th,
+.v2ex-rich td {
+  padding: 5px 8px;
+  border: 1px solid var(--v2-border);
+  text-align: start;
+}
+
+.v2ex-rich th {
+  background: var(--v2-fill);
+  font-weight: 600;
+}
+
+.v2ex-rich .reply-content,
+.v2ex-rich.reply-content {
+  font-size: 12.5px;
+}

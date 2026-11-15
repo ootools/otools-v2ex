@@ -1,0 +1,30 @@
+{
+  "name": "otools-v2ex",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A standalone OTools plugin: browse V2EX nodes, topics and replies with the official 1.0 API.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 6570 --strictPort",
+    "build": "vue-tsc --noEmit && vite build",
+    "typecheck": "vue-tsc --noEmit --pretty false",
+    "preview": "node scripts/serve-dist.mjs 6571",
+    "pack": "npm run build && node scripts/pack-plugin.mjs && node scripts/verify-plugin.mjs",
+    "verify": "node scripts/verify-plugin.mjs"
+  },
+  "dependencies": {
+    "otools-plugin-sdk": "file:vendor/otools-plugin-sdk",
+    "vue": "3.5.27"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.8",
+    "@vitejs/plugin-vue": "5.2.4",
+    "typescript": "5.9.3",
+    "vite": "6.4.1",
+    "vue-tsc": "3.3.11"
+  }
+}

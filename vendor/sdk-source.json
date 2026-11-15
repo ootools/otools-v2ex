@@ -1,0 +1,9 @@
+{
+  "source": "OTools 宿主仓 vendor/otools-plugin-sdk",
+  "repository": "https://github.com/ootools/OTools",
+  "path": "vendor/otools-plugin-sdk",
+  "commit": "6a56f6917d8bfd62ff337af70ba38a81519166aa",
+  "contents": "package.json, dist, LICENSE, README.md",
+  "reason": "独立仓库不引用宿主源码，只快照 SDK 已构建产物；插件仅使用 runtime 子路径。",
+  "update": "宿主 SDK 有变更时，从宿主仓重新拷贝 package.json 与 dist/ 并更新本文件里的 commit"
+}

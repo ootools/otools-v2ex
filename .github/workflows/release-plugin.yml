@@ -1,0 +1,83 @@
+name: release-plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "打包版本号（留空取 plugin.json）"
+        required: false
+        default: ""
+      dry_run:
+        description: "仅构建与校验，不创建 Release"
+        type: boolean
+        default: true
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: otools-v2ex-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci --no-audit --no-fund
+
+      - name: 类型检查
+        run: npm run typecheck
+
+      - name: 构建前端产物
+        run: npx vite build
+
+      - name: 打包插件并校验
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$VERSION" ]; then
+            node scripts/pack-plugin.mjs --version "$VERSION"
+          else
+            node scripts/pack-plugin.mjs
+          fi
+          node scripts/verify-plugin.mjs
+
+      - name: 读取版本
+        id: meta
+        run: |
+          VERSION=$(node -p "require('./dist-pack/plugin.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=plugin-otools-v2ex-v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: otools-v2ex-${{ steps.meta.outputs.version }}
+          path: |
+            dist-pack/*.oplg
+            dist-pack/SHA256SUMS
+            dist-pack/meta.json
+            dist-pack/plugin.json
+            dist-pack/logo.svg
+
+      - name: 创建 GitHub Release
+        if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          gh release create "$TAG" dist-pack/*.oplg dist-pack/SHA256SUMS \
+            --title "V2EX 插件 v${{ steps.meta.outputs.version }}" \
+            --notes "OTools 独立插件：V2EX 浏览（官方 1.0 API，只读）。" \
+            --repo "$GITHUB_REPOSITORY"
