@@ -48,6 +48,21 @@ npm run verify       # 校验 ZIP 结构、CRC、entry、logo.svg、摘要清单
 
 `.oplg` 是扁平 ZIP（`plugin.json` / `logo.svg` / `dist/**`），宿主插件仓库的「本地安装」可直接装。
 
+## 发布
+
+版本标签触发 `.github/workflows/release-plugin.yml`：
+
+```bash
+git tag -a v0.1.1 -m "V2EX 插件 v0.1.1" && git push origin v0.1.1
+```
+
+- `v<版本>` 与 `plugin.json` 的 `version` 必须一致，否则 `publish-market.mjs meta` 直接失败。
+- 仓库变量 `OTOOLS_PUBLISH_MARKET=true` 时同步上架插件市场（默认 `false`：只发 GitHub Release）。
+- 市场认证走 `release` environment 的 `XYCLOUD_PAT`（`AUTH_MODE=pat`），失败时只影响上架，Release 已先完成。
+- 补发市场：Actions → release-plugin → `publish_market=true`、`dry_run=false`，并把 `release_tag` 填成已推的 `v<版本>`，
+  复用同一个 Release，避免仓库里出现第二个指向同产物的标签。
+- 本插件纯前端、无平台相关产物，因此走**单合包**（`packageMode=0` + `packageUrl`），不产出六平台分包。
+
 ## 主题
 
 插件 webview 不加载宿主样式表，颜色令牌由 `src/styles.css` 自持：`html.dark` 切换暗色，`--v2-accent`
