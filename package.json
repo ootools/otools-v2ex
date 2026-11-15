@@ -14,7 +14,9 @@
     "typecheck": "vue-tsc --noEmit --pretty false",
     "preview": "node scripts/serve-dist.mjs 6571",
     "pack": "npm run build && node scripts/pack-plugin.mjs && node scripts/verify-plugin.mjs",
-    "verify": "node scripts/verify-plugin.mjs"
+    "verify": "node scripts/verify-plugin.mjs",
+    "test": "node --test scripts/publish-market.test.mjs scripts/release-policy.test.mjs",
+    "market:preflight": "node scripts/publish-market.mjs preflight"
   },
   "dependencies": {
     "otools-plugin-sdk": "file:vendor/otools-plugin-sdk",
