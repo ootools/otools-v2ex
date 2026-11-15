@@ -5,13 +5,17 @@ run-name: "V2EX 插件${{ inputs.dry_run && '验证' || '发布' }} · ${{ input
 #  1) 推 `v<版本>` 标签 —— 正式发布。仓库变量 OTOOLS_PUBLISH_MARKET=true 时同步上架市场，
 #     Release 与市场用的是同一个 tag（v0.1.0），资产链接不会漂移。
 #  2) 手动 dispatch —— 演练或补发。不传 source tag，Release 标签取
-#     `plugin-otools-v2ex-v<版本>`（publish-market.mjs 的默认规则），
-#     所以补发市场时不要与已推的 v* 标签混用。
+#     `plugin-otools-v2ex-v<版本>`（publish-market.mjs 的默认规则）；
+#     补发市场时把 release_tag 填成已推的 `v<版本>`，即可复用同一个 Release，
+#     不会在仓库里多出一个指向同产物的标签。
 on:
   workflow_dispatch:
     inputs:
       display_version:
         description: "打包版本号（留空取 plugin.json）"
+        default: ""
+      release_tag:
+        description: "复用已有标签（补发市场时填 v0.1.0，留空则自动生成 plugin-otools-v2ex-v<版本>）"
         default: ""
       auth_mode:
         description: "市场认证方式"
@@ -61,7 +65,7 @@ jobs:
         id: meta
         env:
           DISPLAY_VERSION: ${{ inputs.display_version }}
-          RELEASE_SOURCE_TAG: ${{ github.event_name == 'push' && github.ref_name || '' }}
+          RELEASE_SOURCE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
           EVENT_NAME: ${{ github.event_name }}
           DRY_RUN: ${{ inputs.dry_run }}
           PUBLISH_MARKET: ${{ inputs.publish_market }}
