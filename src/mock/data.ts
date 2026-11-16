@@ -1,4 +1,4 @@
-import type { V2exMember, V2exNode, V2exReply, V2exTopic } from '../types';
+import type { V2exMember, V2exNode, V2exNotification, V2exReply, V2exTopic } from '../types';
 
 const now = () => Math.floor(Date.now() / 1000);
 
@@ -226,31 +226,137 @@ class MockHttpError extends Error {}
 
 const json = (value: unknown): string => JSON.stringify(value);
 
-export function resolveMock(rawUrl: string): string | null {
+interface MockContext {
+  method: string;
+  auth: boolean;
+  token?: string;
+}
+
+interface MockResult {
+  status: number;
+  body: string;
+}
+
+/** 模拟已登录账号（?mock=1 时任何 ≥16 位且不含 "bad" 的 token 都能登录）。 */
+const selfMember: V2exMember = {
+  ...member(1001, 'Livid', 'Remember the bigger green'),
+  bio: 'V2EX 创始人，喜欢把东西做简单一点。',
+  url: 'https://www.v2ex.com/member/Livid',
+  avatar_large: '',
+};
+
+let mockNotifications: V2exNotification[] = [
+  {
+    id: 90001,
+    member: member(174792, 'langren'),
+    text: '在主题 <a href="/t/1257265">用 Rust 写了一个本地优先的书签管理器</a> 中回复了你：<br>请问全文索引用的是什么方案？',
+    payload: 'topic:1257265?reply=9002',
+    created: now() - 60 * 6,
+  },
+  {
+    id: 90002,
+    member: member(2333, 'kenshin', '远程工作者'),
+    text: '感谢了你在主题 <a href="/t/1257263">关于远程办公的一点观察</a> 中的回复。',
+    payload: 'topic:1257263',
+    created: now() - 60 * 48,
+  },
+  {
+    id: 90003,
+    member: member(9201, 'northis', '折腾'),
+    text: '在主题 <a href="/t/1257262">Mac mini M4 当家庭服务器两个月</a> 中提到了你：<br>@Livid 你那边硬盘盒是什么型号？',
+    payload: 'topic:1257262?reply=9008',
+    created: now() - 60 * 150,
+  },
+];
+
+const ok = (value: unknown): MockResult => ({ status: 200, body: json(value) });
+const v2 = (result: unknown): MockResult => ok({ success: true, result });
+
+export function resolveMock(rawUrl: string, context: MockContext): MockResult | null {
   const url = new URL(rawUrl);
   const path = url.pathname;
   const query = url.searchParams;
 
-  if (path.endsWith('/nodes/all.json')) return json(nodes);
-  if (path.endsWith('/topics/latest.json')) return json(topics);
-  if (path.endsWith('/topics/hot.json')) return json(topics.slice(0, 6));
+  // ---- API 2.0（需要 token）----
+  if (path.startsWith('/api/v2/')) {
+    // 令牌里带 "bad" 时模拟失效，方便调试错误态。
+    if (!context.auth || context.token?.includes('bad')) {
+      return { status: 401, body: json({ success: false, message: 'unauthorized' }) };
+    }
+
+    if (path === '/api/v2/token') {
+      return v2({
+        token: 'mock-token-0000-0000-000000000000',
+        scope: 'regular',
+        created: now() - 86400 * 30,
+        expiration: now() + 86400 * 60,
+        good_for_days: 90,
+      });
+    }
+    if (path === '/api/v2/member') return v2(selfMember);
+
+    if (path === '/api/v2/notifications') return v2(mockNotifications);
+
+    const removal = path.match(/^\/api\/v2\/notifications\/(\d+)$/);
+    if (removal) {
+      if (context.method !== 'DELETE') return { status: 405, body: json({ success: false, message: 'method not allowed' }) };
+      mockNotifications = mockNotifications.filter((item) => item.id !== Number(removal[1]));
+      return v2(null);
+    }
+
+    const repliesV2 = path.match(/^\/api\/v2\/topics\/(\d+)\/replies$/);
+    if (repliesV2) {
+      const topicId = Number(repliesV2[1]);
+      // v2 的回复不带 topic_id，这里如实模拟。
+      return v2(
+        replies
+          .filter((item) => item.topic_id === topicId)
+          .map((item) => ({
+            id: item.id,
+            content: item.content,
+            content_rendered: item.content_rendered,
+            created: item.created,
+            member: item.member,
+          })),
+      );
+    }
+
+    const topicV2 = path.match(/^\/api\/v2\/topics\/(\d+)$/);
+    if (topicV2) {
+      const topic = topics.find((item) => item.id === Number(topicV2[1]));
+      return topic ? v2(topic) : { status: 404, body: json({ success: false, message: 'not found' }) };
+    }
+
+    const nodeTopicsV2 = path.match(/^\/api\/v2\/nodes\/([^/]+)\/topics$/);
+    if (nodeTopicsV2) {
+      const name = decodeURIComponent(nodeTopicsV2[1]);
+      return v2(topics.filter((item) => item.node?.name === name));
+    }
+
+    return null;
+  }
+
+  // ---- API 1.0（公开只读）----
+  if (path.endsWith('/nodes/all.json')) return ok(nodes);
+  if (path.endsWith('/topics/latest.json')) return ok(topics);
+  if (path.endsWith('/topics/hot.json')) return ok(topics.slice(0, 6));
 
   if (path.endsWith('/topics/show.json')) {
     const id = Number(query.get('id'));
     if (Number.isFinite(id) && id > 0) {
       const topic = topics.find((item) => item.id === id);
-      return json(topic ? [topic] : []);
+      return ok(topic ? [topic] : []);
     }
     const nodeName = query.get('node_name');
     if (nodeName) {
-      return json(topics.filter((item) => item.node?.name === nodeName));
+      return ok(topics.filter((item) => item.node?.name === nodeName));
     }
-    return json(topics);
+    return ok(topics);
   }
 
   if (path.endsWith('/replies/show.json')) {
     const topicId = Number(query.get('topic_id'));
-    return json(replies.filter((item) => item.topic_id === topicId));
+    return ok(replies.filter((item) => item.topic_id === topicId));
   }
 
   throw new MockHttpError(`no mock for ${rawUrl}`);

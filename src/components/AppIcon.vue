@@ -17,6 +17,11 @@ type IconName =
   | 'inbox'
   | 'alert'
   | 'hash'
+  | 'bell'
+  | 'user'
+  | 'lock'
+  | 'trash'
+  | 'logout'
   | 'loader';
 
 const props = withDefaults(defineProps<{ name: IconName; size?: number }>(), { size: 16 });
@@ -42,6 +47,15 @@ const icons: Record<IconName, string> = {
   alert:
     '<circle cx="12" cy="12" r="9"/><path d="M12 7.2v5.6"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/>',
   hash: '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
+  bell:
+    '<path d="M18 8.4a6 6 0 1 0-12 0c0 4.6-1.8 5.8-1.8 5.8h15.6S18 13 18 8.4Z"/><path d="M10.2 18.4a2 2 0 0 0 3.6 0"/>',
+  user: '<circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20.2c.5-3.5 3.5-5.4 7.2-5.4s6.7 1.9 7.2 5.4"/>',
+  lock:
+    '<rect x="4.8" y="10.4" width="14.4" height="9.6" rx="2.6"/><path d="M8.4 10.4V7.9a3.6 3.6 0 0 1 7.2 0v2.5"/>',
+  trash:
+    '<path d="M4.4 7h15.2M9.4 7V5.6A1.6 1.6 0 0 1 11 4h2a1.6 1.6 0 0 1 1.6 1.6V7"/><path d="M6.6 7l.8 12.1A1.9 1.9 0 0 0 9.3 21h5.4a1.9 1.9 0 0 0 1.9-1.9L17.4 7"/>',
+  logout:
+    '<path d="M14.6 4.8h2.6A1.6 1.6 0 0 1 18.8 6.4v11.2a1.6 1.6 0 0 1-1.6 1.6h-2.6"/><path d="M10.4 8.2 6.6 12l3.8 3.8M6.6 12h8"/>',
   loader: '<path d="M12 3a9 9 0 1 0 9 9"/>',
 };
 

@@ -36,6 +36,8 @@ body {
   --v2-hover: #f4f6f9;
   --v2-hover-strong: #eceff4;
   --v2-fill: #f2f3f5;
+  /* 浮层（下拉面板 / 弹层）底色：必须不透明，且与页面底色有明暗差才能浮起来。 */
+  --v2-overlay: #ffffff;
   --v2-accent: #2370c6;
   --v2-active: color-mix(in srgb, var(--v2-accent) 9%, #ffffff);
   --v2-success: #2f9e5f;
@@ -57,6 +59,8 @@ html.dark {
   --v2-hover: rgb(255 255 255 / 0.07);
   --v2-hover-strong: rgb(255 255 255 / 0.12);
   --v2-fill: rgb(255 255 255 / 0.07);
+  /* 暗色下用比基底 #222224 略亮的抬升色，避免浮层和页面糊成一片。 */
+  --v2-overlay: #2c2c2e;
   --v2-active: color-mix(in srgb, var(--v2-accent) 24%, transparent);
   --v2-success: #4ec98a;
   --v2-danger: #f4777f;

@@ -50,8 +50,22 @@ export function absoluteTime(unixSeconds: number): string {
   }
 }
 
-export function formatCount(value: number | undefined | null): string {
-  const count = Number(value ?? 0);
+/** 只到天的日期，用于「令牌有效期至 …」这类不需要时分的位置。 */
+export function formatDate(unixSeconds: number): string {
+  const date = new Date(Number(unixSeconds) * 1000);
+  if (Number.isNaN(date.getTime())) return '';
+  try {
+    return new Intl.DateTimeFormat(currentLocale(), {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+  } catch {
+    return date.toLocaleDateString();
+  }
+}
+
+export function formatCount(value: number | undefined | null): string {  const count = Number(value ?? 0);
   if (!Number.isFinite(count)) return '0';
   try {
     return new Intl.NumberFormat(currentLocale()).format(count);
@@ -131,6 +145,17 @@ export function absoluteUrl(href: string): string {
 
 export function parseTopicIdFromHref(href: string): number | null {
   const match = absoluteUrl(href).match(/^https:\/\/www\.v2ex\.com\/t\/(\d+)/i);
+  return match ? Number(match[1]) : null;
+}
+
+/**
+ * 通知的 payload 形如 `topic:1257265` / `topic:1257265?reply=16` / `reply:16`。
+ * 只有能确定主题 id 时才返回数字，其余交给浏览器打开。
+ */
+export function parseTopicIdFromPayload(payload: string | null | undefined): number | null {
+  const value = String(payload ?? '').trim();
+  if (!value) return null;
+  const match = value.match(/^(?:topic|t):(\d+)/i) ?? value.match(/\/(?:t)\/(\d+)/i);
   return match ? Number(match[1]) : null;
 }
 

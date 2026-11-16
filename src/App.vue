@@ -11,7 +11,15 @@ import {
 } from './api';
 import { formatCount } from './format';
 import { useV2exI18n } from './i18n';
+import { isAuthenticated, restoreSession } from './auth';
+import {
+  bindNotificationVisibility,
+  clearNotifications,
+  startNotificationPolling,
+  stopNotificationPolling,
+} from './notifications';
 import type { TopicSource, V2exNode, V2exTopic } from './types';
+import AccountMenu from './components/AccountMenu.vue';
 import AppIcon from './components/AppIcon.vue';
 import NodeSidebar from './components/NodeSidebar.vue';
 import TopicDetail from './components/TopicDetail.vue';
@@ -177,6 +185,7 @@ const refreshCurrent = (): void => {
 };
 
 let resizeObserver: ResizeObserver | null = null;
+let releaseVisibility: (() => void) | null = null;
 
 const syncNarrow = (width: number): void => {
   const next = width < 700;
@@ -204,11 +213,26 @@ watch(source, () => {
   void loadTopics();
 });
 
+// 登录 / 登出时同步通知轮询与缓存，避免在未登录状态下空转请求。
+watch(isAuthenticated, (authed) => {
+  if (authed) {
+    startNotificationPolling();
+  } else {
+    stopNotificationPolling();
+    clearNotifications();
+  }
+});
+
 onMounted(() => {
   recentNodes.value = readRecent();
   if (devTopicId) activeTopicId.value = devTopicId;
   void loadNodes();
   void loadTopics();
+
+  void restoreSession().then(() => {
+    if (isAuthenticated.value) startNotificationPolling();
+  });
+  releaseVisibility = bindNotificationVisibility();
 
   if (typeof ResizeObserver !== 'undefined' && rootRef.value) {
     resizeObserver = new ResizeObserver((entries) => {
@@ -226,6 +250,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   resizeObserver?.disconnect();
+  releaseVisibility?.();
+  stopNotificationPolling();
   window.removeEventListener('resize', onWindowResize);
   window.removeEventListener('keydown', onKeyDown);
 });
@@ -259,6 +285,8 @@ onUnmounted(() => {
       <button class="icon-button" :title="t('refresh')" @click="refreshCurrent">
         <AppIcon name="refresh" :size="16" />
       </button>
+
+      <AccountMenu :t="t" :narrow="narrow" @open-topic="openTopic" />
     </header>
 
     <div class="app-body">
@@ -415,7 +443,8 @@ onUnmounted(() => {
   background: var(--v2-border-strong);
 }
 
-.app-bar > .icon-button:last-child {
+/* 刷新与账号入口一起靠右；用 account-menu 承担自适应左边距。 */
+.app-bar > .account-menu {
   margin-inline-start: auto;
 }
 
