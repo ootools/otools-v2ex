@@ -14,7 +14,13 @@
   "icon": "💬",
   "hasAd": false,
   "inPluginPurchase": false,
-  "screenshots": [],
+  "screenshots": [
+    "screenshots/list-light.webp",
+    "screenshots/topic-light.webp",
+    "screenshots/account-light.webp",
+    "screenshots/list-dark.webp",
+    "screenshots/topic-dark.webp"
+  ],
   "key": ["v2ex", "社区", "论坛", "节点", "主题", "topic", "forum", "提醒", "token"],
   "openInBrowser": false,
   "openMode": "panel",

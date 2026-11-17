@@ -239,9 +239,9 @@ interface MockResult {
 
 /** 模拟已登录账号（?mock=1 时任何 ≥16 位且不含 "bad" 的 token 都能登录）。 */
 const selfMember: V2exMember = {
-  ...member(1001, 'Livid', 'Remember the bigger green'),
-  bio: 'V2EX 创始人，喜欢把东西做简单一点。',
-  url: 'https://www.v2ex.com/member/Livid',
+  ...member(1001, 'otools', '本地优先'),
+  bio: '把常用的东西做成桌面插件，顺便记录踩过的坑。',
+  url: 'https://www.v2ex.com/member/otools',
   avatar_large: '',
 };
 
@@ -263,7 +263,7 @@ let mockNotifications: V2exNotification[] = [
   {
     id: 90003,
     member: member(9201, 'northis', '折腾'),
-    text: '在主题 <a href="/t/1257262">Mac mini M4 当家庭服务器两个月</a> 中提到了你：<br>@Livid 你那边硬盘盒是什么型号？',
+    text: '在主题 <a href="/t/1257262">Mac mini M4 当家庭服务器两个月</a> 中提到了你：<br>@otools 你那边硬盘盒是什么型号？',
     payload: 'topic:1257262?reply=9008',
     created: now() - 60 * 150,
   },

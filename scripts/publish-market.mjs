@@ -91,7 +91,19 @@ export function marketPayload(manifest,repo,tag,version,extras={}) {
   // 改用 raw.githubusercontent.com 上同一 tag 的仓库文件：返回 image/svg+xml，
   // 可直接渲染，且随 tag 固定不会漂移。
   const logo=`https://raw.githubusercontent.com/${repo}/${encodeURIComponent(tag)}/logo.svg`;
-  const payload={...productionManifest(manifest,version),logo,
+  // 截图同 logo：仓库里存包内相对路径（`screenshots/xx.webp`），发布时才补成
+  // tag 固定的绝对地址。市场只认 https 图片链，且 Release 资产链会 302 到
+  // octet-stream 被 <img> 拒载；raw 链返回 image/webp，可直接渲染。
+  const screenshotUrl=(entry)=>{
+    const text=String(entry || '').trim();
+    if (!text) return '';
+    if (/^https?:\/\//i.test(text)) return text;
+    return `https://raw.githubusercontent.com/${repo}/${encodeURIComponent(tag)}/${text.replace(/^\.?\//, '')}`;
+  };
+  const screenshots=(Array.isArray(manifest.screenshots) ? manifest.screenshots : [])
+    .map(screenshotUrl)
+    .filter(Boolean);
+  const payload={...productionManifest(manifest,version),logo,screenshots,
     supportWindows:true,supportMacos:true,supportLinux:true,
   };
   // 宿主两种写法都认（serde alias），但同时出现会被当成重复字段；

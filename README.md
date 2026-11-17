@@ -44,10 +44,12 @@ V2EX 没有 OAuth，也没有账号密码登录接口，唯一的官方方式是
 ```
 src/             Vue 3 + TS 前端（组件、API 客户端、i18n、主题令牌）
 i18n/            8 语言文案（zh-CN / en-US / ja-JP / ko-KR / de-DE / ru-RU / es-ES / ar-SA）
-vendor/          内嵌 otools-plugin-sdk（只用 runtime：invoke / openExternal）
-scripts/         pack-plugin.mjs（手写 ZIP → .oplg）、verify-plugin.mjs、serve-dist.mjs
+screenshots/     市场轮播图（webp，清单写在 plugin.json）
+scripts/         pack-plugin.mjs（手写 ZIP → .oplg）、verify-plugin.mjs、serve-dist.mjs、publish-market.mjs
 plugin.json      插件清单（宿主读它，entry 指向 dist/index.html）
 ```
+
+运行时依赖只有 `otools-plugin-sdk`（npm 包，只用 `runtime` 的 `invoke` / `openExternal`）与 `vue`。
 
 ## 开发
 
@@ -84,6 +86,9 @@ git tag -a v0.1.1 -m "V2EX 插件 v0.1.1" && git push origin v0.1.1
 - 补发市场：Actions → release-plugin → `publish_market=true`、`dry_run=false`，并把 `release_tag` 填成已推的 `v<版本>`，
   复用同一个 Release，避免仓库里出现第二个指向同产物的标签。
 - 本插件纯前端、无平台相关产物，因此走**单合包**（`packageMode=0` + `packageUrl`），不产出六平台分包。
+- 市场截图在 `plugin.json` 里只写包内相对路径（`screenshots/xx.webp`），发布时 `publish-market.mjs` 会补成
+  `raw.githubusercontent.com/<repo>/<tag>/...`：市场只认 https 图片链，Release 资产链会 302 到 octet-stream
+  被 `<img>` 拒载。截图跟着 tag 走，**换图必须随新版本一起推**，否则市场仍指向旧 tag 的那几张。
 
 ## 主题
 

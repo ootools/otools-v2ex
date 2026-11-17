@@ -38,6 +38,20 @@ test('combined market payload keeps packageUrl and reports packageMode=0',()=>{
   assert.equal(p.supportMacos,true);
   assert.equal(p.supportLinux,true);
 });
+test('screenshots stored as in-package paths are rewritten to tag-pinned raw URLs',()=>{
+  const p=marketPayload({
+    packid:'plugin-a',uuid:'plugin-a',version:'1.0.0',displayName:'A',entry:'dist/index.html',
+    minOtoolsVersion:'0.9.0',
+    screenshots:['screenshots/list-light.webp','./screenshots/list-dark.webp','','https://cdn.test/account.webp'],
+  },'owner/repo','v1.0.0','1.0.0');
+  assert.deepEqual(p.screenshots,[
+    'https://raw.githubusercontent.com/owner/repo/v1.0.0/screenshots/list-light.webp',
+    'https://raw.githubusercontent.com/owner/repo/v1.0.0/screenshots/list-dark.webp',
+    'https://cdn.test/account.webp',
+  ]);
+  // 没有任何截图时也不能把 undefined 塞给市场
+  assert.deepEqual(marketPayload({packid:'plugin-b',uuid:'plugin-b',version:'1.0.0',displayName:'B',entry:'dist/index.html'},'owner/repo','v1.0.0','1.0.0').screenshots,[]);
+});
 test('six-platform payload exposes one URL per OS/arch and packageMode=1',()=>{
   const p=marketPayload({packid:'plugin-a',uuid:'plugin-a',version:'1.0.0',displayName:'A',entry:'dist/index.html',minOtoolsVersion:'0.9.0'},'owner/repo','v1.0.0','1.0.0',{platformPackages:true});
   const base='https://github.com/owner/repo/releases/download/v1.0.0/plugin-a-1.0.0';
