@@ -25,5 +25,6 @@
   "openInBrowser": false,
   "openMode": "panel",
   "panelWidth": 1180,
-  "panelHeight": 800
+  "panelHeight": 800,
+  "openSourceUrl": "https://github.com/ootools/otools-v2ex"
 }
